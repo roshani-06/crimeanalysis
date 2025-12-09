@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- ADD THESE STATIC CSS FILES -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+            CrimeAnalytics
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/analysis">Analysis</a>
+                <a class="nav-link active" href="/prediction">Prediction</a>
+                <a class="nav-link" href="/hotspots">Hotspots</a>
+                <a class="nav-link" href="/policies">Policies</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Crime Rate Prediction</h2>
+        <p class="text-muted">Predict future crime rates using machine learning</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="predictionForm">
+                            <div class="mb-3">
+                                <label class="form-label">State/UT</label>
+                                <select class="form-select" name="state" id="stateSelect" required>
+                                    <option value="">Select State</option>
+                                    {% for state in states %}
+                                    <option value="{{ state }}">{{ state }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">District</label>
+                                <select class="form-select" name="district" id="districtSelect" required disabled>
+                                    <option value="">Select District</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Crime Type</label>
+                                <select class="form-select" name="crime_type" required>
+                                    <option value="Total_Crimes">Total Crimes</option>
+                                    {% for crime in crime_types %}
+                                    <option value="{{ crime }}">{{ crime }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Prediction Year</label>
+                                <input type="number" class="form-control" name="year" value="2015" min="2015" max="2030" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Predict Crime Rate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Prediction Results</h5>
+                        <div id="predictionResult" class="mt-3">
+                            <p class="text-muted">Submit the form to see predictions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ADD THESE STATIC JS FILES -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Load districts when state changes
+        document.getElementById('stateSelect').addEventListener('change', function() {
+            const state = this.value;
+            const districtSelect = document.getElementById('districtSelect');
+            
+            if (state) {
+                fetch('/get_districts?state=' + state)
+                    .then(response => response.json())
+                    .then(districts => {
+                        districtSelect.innerHTML = '<option value="">Select District</option>';
+                        districts.forEach(district => {
+                            districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+                        });
+                        districtSelect.disabled = false;
+                    });
+            } else {
+                districtSelect.disabled = true;
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                state: formData.get('state'),
+                district: formData.get('district'),
+                crime_type: formData.get('crime_type'),
+                year: parseInt(formData.get('year'))
+            };
+            
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                displayPredictionResult(result);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function displayPredictionResult(result) {
+            const resultDiv = document.getElementById('predictionResult');
+            const confidenceClass = result.confidence === 'high' ? 'text-success' : 
+                                 result.confidence === 'medium' ? 'text-warning' : 'text-danger';
+            
+            resultDiv.innerHTML = `
+                <div class="prediction-result fade-in">
+                    <h4>Prediction Results</h4>
+                    <div class="prediction-details mb-4">
+                        <p><strong>Location:</strong> ${result.district}, ${result.state}</p>
+                        <p><strong>Crime Type:</strong> ${result.crime_type}</p>
+                        <p><strong>Year:</strong> ${result.year}</p>
+                    </div>
+                    <div class="prediction-value">${Math.round(result.predicted_crimes)}</div>
+                    <span class="confidence-badge ${confidenceClass}">
+                        ${result.confidence} Confidence
+                    </span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

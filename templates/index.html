@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Rate Analysis & Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- ADD THESE STATIC CSS FILES -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                 CrimeAnalytics
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/analysis">Analysis</a>
+                <a class="nav-link" href="/prediction">Prediction</a>
+                <a class="nav-link" href="/hotspots">Hotspots</a>
+                <a class="nav-link" href="/policies">Policies</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 mb-4">Crime Rate Analysis & Prediction System</h1>
+            <p class="lead mb-4">Advanced analytics and machine learning for crime prevention and policy making</p>
+            <a href="/analysis" class="btn btn-light btn-lg">Explore Analysis</a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container my-5">
+    <div class="row g-4 justify-content-between">
+
+        <div class="col-md-3 flex-grow-1 mx-3">
+            <div class="card feature-card text-center p-4">
+                <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
+                <a href="/prediction" class="btn btn-light btn-lg">Crime prediction</a>
+                <p>Machine learning models forecasting future crime trends and patterns</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 flex-grow-1 mx-3">
+            <div class="card feature-card text-center p-4">
+                <i class="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
+                <a href="/hotspots" class="btn btn-light btn-lg">Hotspot Mapping</a>
+                <p>Interactive maps showing crime hotspots across regions</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 flex-grow-1 mx-3">
+            <div class="card feature-card text-center p-4">
+                <i class="fas fa-lightbulb fa-3x text-warning mb-3"></i>
+                <a href="/policies" class="btn btn-light btn-lg">Policy Insights</a>
+                <p>Data-driven policy recommendations for crime reduction</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <p>&copy; 2025 Crime Analysis and Prediction.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ADD THESE STATIC JS FILES -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Load quick stats
+        fetch('/analysis?state=All&crime_type=Total_Crimes&year=2014')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalCrimes').textContent = 
+                    data.total_crimes?.toLocaleString() || '50,000+';
+                document.getElementById('statesCovered').textContent = '36+';
+                document.getElementById('districtsCovered').textContent = '700+';
+                document.getElementById('crimeTypes').textContent = '13+';
+            });
+    </script>
+</body>
+</html>
