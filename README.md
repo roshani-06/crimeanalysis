@@ -1,4 +1,5 @@
-Crime Analysis And Prediction System
+# Heading 1
+Crime Rate Analysis And Prediction System
 
 ![image alt](https://github.com/roshani-06/crimeanalysis/blob/master/Home_Page.PNG?raw=true)
 ![image alt](https://github.com/roshani-06/crimeanalysis/blob/master/Analysis_Page.PNG?raw=true)
